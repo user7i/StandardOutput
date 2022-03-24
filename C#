@@ -50,7 +50,7 @@ namespace 出力受取り
         private void buttonStart_Click(object sender, EventArgs e)
         {
             // Pythonインタープリタのパス
-            var pythonInterpreterPath = @"C:\Users\Taro\anaconda3\envs\AnoGAN\python.exe";
+            var pythonInterpreterPath = @"C:\Users\Taro\anaconda3\envs\py38\python.exe";
 
             // Pythonスクリプトのパス
             var pythonScriptPath = "print_test.py";
