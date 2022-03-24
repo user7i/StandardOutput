@@ -1,0 +1,90 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Diagnostics;
+using System.Drawing;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using WMPLib;			
+
+namespace 出力受取り
+{
+    public partial class Form1 : Form
+    {
+        public delegate void MyEventHandler(object sender, DataReceivedEventArgs e);
+        public event MyEventHandler myEvent = null;
+
+        Process process = null;
+
+        public Form1()
+        {
+            InitializeComponent();
+
+            myEvent = new MyEventHandler(event_DataReceived);
+
+        }
+
+        void process_DataReceived(object sender, DataReceivedEventArgs e)
+        {
+            this.Invoke(myEvent, new object[2] { sender, e });
+        }
+
+        void event_DataReceived(object sender, DataReceivedEventArgs e)
+        {
+            if (e.Data != null)
+            {
+                richTextBox1.Focus();
+                richTextBox1.AppendText(e.Data + System.Environment.NewLine);
+            }
+        }
+
+        private void processExited(object sender, EventArgs e)
+        {
+            MessageBox.Show("終了です。");
+        }
+
+        private void buttonStart_Click(object sender, EventArgs e)
+        {
+            // Pythonインタープリタのパス
+            var pythonInterpreterPath = @"C:\Users\Taro\anaconda3\envs\AnoGAN\python.exe";
+
+            // Pythonスクリプトのパス
+            var pythonScriptPath = "print_test.py";
+
+            // Pythonスクリプトに渡す引数
+            var arguments = new List<string>
+
+            {
+                pythonScriptPath
+            };
+
+            process = new Process()
+
+            {
+                StartInfo = new ProcessStartInfo(pythonInterpreterPath)
+                {
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    //CreateNoWindow = true,
+                    Arguments = string.Join(" ", arguments),
+                },
+            };
+
+            process.OutputDataReceived += new DataReceivedEventHandler(process_DataReceived);
+
+            process.Exited += new EventHandler(processExited);
+            //プロセスが終了したときに Exited イベントを発生させる
+            process.EnableRaisingEvents = true;
+
+            process.Start();
+
+            // 標準出力の非同期読込を開始
+            process.BeginOutputReadLine();
+        }
+
+    }
+}
